@@ -1,6 +1,7 @@
 require("./styles.scss");
 
-const { NowPlayingComponent } = require("./components/now-playing");
+import { init } from './shared-scripts/api-service';
+import { NowPlayingComponent } from './components/now-playing';
 
 function loadNowPlaying() {
     var $nowPlayingContainer = $("<div id='nowPlayingContainer'></div>");
@@ -8,4 +9,4 @@ function loadNowPlaying() {
     new NowPlayingComponent($nowPlayingContainer.get(0)).init();
 }
 
-loadNowPlaying();
+init().then(loadNowPlaying);

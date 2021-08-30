@@ -1,41 +1,60 @@
-const Mustache = require("mustache");
-const { getNowPlayingMovies } = require("../shared-scripts/api-service");
-require("owl.carousel");
+import Mustache from 'mustache';
+import { getNowPlayingMovies } from '../shared-scripts/api-service'
+import { NowPlayingCardComponent } from './now-playing-card'
+import Splide from '@splidejs/splide';
 
 const template = `
-<div class="owl-carousel">
-    {{#movies}}
-    <h1>{{title}}</h1>
-    {{/movies}}
+<div class="now-playing">
+    <div class="splide">
+        <div class="splide__track">
+            <ul class="splide__list">
+                {{#movies}}
+                <li class="splide__slide">
+                    <div id="nowPlayingMovie_{{id}}" class="now-playing-card-container"></div>
+                </li>
+                {{/movies}}
+            </ul>
+        </div>
+    </div>
 </div>
 `;
 
-class NowPlayingComponent {
+export class NowPlayingComponent {
     constructor(parentElement) {
         this.parentElement = parentElement;
-        this.model = {
-            movies: []
-        };
+        this.model = {};
     }
 
-    // controlller
     init() {
-        this.populate();
+        this.populate().then(() => this.render());
     }
 
-    // controller
     populate() {
-        getNowPlayingMovies().then(movies => {
-            this.model.movies = movies;
-            this.render();
+        return getNowPlayingMovies().then(nowPlayingMovies => {
+            this.model.movies = nowPlayingMovies.map((m, i) => ({
+                movie: m,
+                id: m.id,
+                activeClassName: i == 0 ? "active" : ""
+            }));
         });
     }
 
-    // view
     render() {
-        this.parentElement.innerHTML = Mustache.render(template, this.model);
-        $(this.parentElement).find(".owl-carousel").owlCarousel();
+        let $parentElement = $(this.parentElement);
+        $parentElement.html(Mustache.render(template, this.model));
+        this.model.movies.forEach(m => {
+            new NowPlayingCardComponent($parentElement.find(`#nowPlayingMovie_${m.id}`).get(0), m.movie).init();
+        });
+        
+        new Splide($parentElement.find("div.splide").get(0), {
+            type   : 'loop',
+            padding: {
+                right: '10%',
+                left : '10%',
+            },
+            arrows: false,
+            pagination: false,
+            autoplay: false
+        }).mount();
     }
 }
-
-exports.NowPlayingComponent = NowPlayingComponent;

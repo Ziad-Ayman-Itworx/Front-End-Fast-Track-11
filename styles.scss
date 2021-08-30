@@ -1,1 +1,77 @@
-@use "../node_modules/owl.carousel/dist/assets/owl.carousel.css";
+@use "node_modules/@splidejs/splide/dist/css/splide.min.css";
+
+@font-face {
+    font-family: "Main Font Regular";
+    src: url(./assets/fonts/SourceSansPro-Regular.ttf);
+}
+
+@font-face {
+    font-family: "Main Font Bold";
+    src: url(./assets/fonts/SourceSansPro-SemiBold.ttf);
+}
+
+.now-playing {
+    .now-playing-card-container {
+        height: 500px;
+        padding: 0 15px;
+        
+        .now-playing-card {
+            position: relative;
+            height: 100%;
+            border-radius: 10px;
+
+            img.now-playing-card-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: inherit;
+            }
+
+            .now-playing-card-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: linear-gradient(180deg, #0729561E 0%, #020916 100%);
+                border-radius: inherit;
+            }
+
+            .now-playing-card-caption {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                border-radius: inherit;
+                padding: 10px;
+
+                h1.now-playing-card-title,
+                h5.now-playing-card-sub-caption,
+                h6.now-playing-card-label {
+                    margin: 0%;
+                    vertical-align: b;
+                }
+
+                h1.now-playing-card-title {
+                    color: #eeeeee;
+                    font-family: "Main Font Bold";
+                    font-size: 2rem;
+                }
+    
+                h5.now-playing-card-sub-caption,
+                h6.now-playing-card-label {
+                    font-family: "Main Font Regular";
+                    color: white;
+                    opacity: 70%;
+                }
+    
+                h5.now-playing-card-sub-caption {
+                    font-size: 1.5rem;
+                }
+    
+                h6.now-playing-card-label {
+                    font-size: 1rem;
+                }
+            }
+        }
+    }
+}

@@ -1,29 +1,45 @@
-const fetch = require('node-fetch');
-const models = require("./models");
-const apiCredentials = require("../api-credentials.json");
+import { Movie } from './models';
+import { apiKey } from '../api-credentials.json';
 
-const apiUrl = "https://api.themoviedb.org/3/movie";
+const apiUrl = "https://api.themoviedb.org/3";
+
+var imagesBaseUrl;
+var backdropPreferredWidth;
+var posterPreferredWidth;
+var genres;
 
 function getJSON(endpoint) {
-    return fetch(`${apiUrl}/${endpoint}?api_key=${apiCredentials.apiKey}`).then(response => response.json());
+    return fetch(`${apiUrl}/${endpoint}?api_key=${apiKey}`).then(response => response.json());
+}
+
+export function init() {
+    return Promise.all([
+        getJSON("configuration").then(result => {
+            imagesBaseUrl = result.images.base_url;
+            backdropPreferredWidth = result.images.backdrop_sizes.find(s => parseInt(s.substring(1)) >= 1200);
+            posterPreferredWidth = result.images.poster_sizes.find(s => parseInt(s.substring(1)) >= 180);
+        }),
+        getJSON("genre/movie/list").then(result => { genres = result.genres; })
+    ]);
 }
 
 function getMovies(endpoint) {
-    return getJSON(endpoint).then(result => result.results.map(rawMovie => new models.Movie(rawMovie)));
+    return getJSON(endpoint).then(result => result.results.map(rawMovie => new Movie(
+        rawMovie.id,
+        rawMovie.title,
+        imagesBaseUrl.concat(backdropPreferredWidth).concat(rawMovie.backdrop_path),
+        imagesBaseUrl.concat(posterPreferredWidth).concat(rawMovie.poster_path),
+        genres.filter(g => rawMovie.genre_ids.includes(g.id)).map(g => g.name))));
 }
 
-function getNowPlayingMovies() {
-    return getMovies("now_playing");
+export function getNowPlayingMovies() {
+    return getMovies("movie/now_playing");
 }
 
-function getTopRatedovies() {
-    return getMovies("top_rated");
+export function getTopRatedovies() {
+    return getMovies("movie/top_rated");
 }
 
-function getTrendingMovies() {
-    return getMovies("popular");
+export function getTrendingMovies() {
+    return getMovies("movie/popular");
 }
-
-exports.getNowPlayingMovies = getNowPlayingMovies;
-exports.getTopRatedovies = getTopRatedovies;
-exports.getTrendingMovies = getTrendingMovies;
